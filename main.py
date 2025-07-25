@@ -129,7 +129,10 @@ async def open_and_screenshot_urls():
 
     try:
         for chat_id in CHAT_IDS:
-            await app.send_message(chat_id=chat_id, text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Sessions: {len(STREAMLIT_SESSIONS)}")
+            await app.send_message(
+                chat_id=chat_id,
+                text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Sessions: {len(STREAMLIT_SESSIONS)}"
+            )
 
         for url in OPEN_URLS:
             for i, session_token in enumerate(STREAMLIT_SESSIONS):
@@ -138,31 +141,53 @@ async def open_and_screenshot_urls():
                     filename = os.path.join("screenshots", f"open_{i}_{safe_name}.png")
 
                     for chat_id in CHAT_IDS:
-                        await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #{i})\n📁 Filename: `{filename}`")
+                        await app.send_message(
+                            chat_id=chat_id,
+                            text=f"⏳ Trying `{url}` (session #{i})\n📁 Filename: `{filename}`"
+                        )
 
                     await screenshot_url_page(url, filename, session_token)
 
                     for chat_id in CHAT_IDS:
-                        await app.send_message(chat_id=chat_id, text=f"✅ Screenshot taken for `{url}` (session #{i})")
+                        await app.send_message(
+                            chat_id=chat_id,
+                            text=f"✅ Screenshot taken for `{url}` (session #{i})"
+                        )
 
-                    # Log file size before sending
+                    # Validate screenshot file before sending
                     if not os.path.exists(filename):
-                        raise FileNotFoundError(f"Screenshot file not found: {filename}")
+                        raise FileNotFoundError(f"Screenshot not found: {filename}")
                     file_size = os.path.getsize(filename)
                     if file_size == 0:
                         raise ValueError(f"Screenshot file is empty: {filename}")
 
                     for chat_id in CHAT_IDS:
                         try:
-                            await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #{i})")
+                            await app.send_message(
+                                chat_id=chat_id,
+                                text=f"📤 Sending screenshot to `{chat_id}` for `{url}` (session #{i})"
+                            )
+                            await app.send_photo(
+                                chat_id=chat_id,
+                                photo=filename,
+                                caption=f"📷 Screenshot for `{url}` (session #{i})"
+                            )
+                            await app.send_message(
+                                chat_id=chat_id,
+                                text=f"✅ Photo sent successfully for `{url}` (session #{i})"
+                            )
                         except Exception as send_err:
                             err_trace = traceback.format_exc()[-2000:]
                             await app.send_message(
                                 chat_id=chat_id,
-                                text=f"❌ Failed to send photo for `{url}` (session #{i}):\n🛑 {send_err}\n```{err_trace}```"
+                                text=(
+                                    f"❌ Failed to send photo for `{url}` (session #{i}):\n"
+                                    f"🛑 {send_err}\n```{err_trace}```"
+                                )
                             )
 
-                    os.remove(filename)
+                    # Commented out for debugging — enable after verifying
+                    # os.remove(filename)
 
                 except Exception as e:
                     error_text = traceback.format_exc()[-2800:]
@@ -179,6 +204,7 @@ async def open_and_screenshot_urls():
                 chat_id=chat_id,
                 text=f"🚨 FATAL in open_and_screenshot_urls loop:\n🛑 `{str(big_e)}`\n```{error_text}```"
             )
+
 
 
 #@app.on_message(filters.private & filters.regex(r'^https?://'))
