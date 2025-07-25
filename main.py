@@ -169,7 +169,7 @@ async def main():
         error_text = traceback.format_exc()[-2800:]
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"❌ Error during open_and_screenshot_urls:\n```{error_text}```")
-
-    
     await idle()
     await app.stop()
+if __name__ == "__main__":
+    asyncio.run(main())
