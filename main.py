@@ -126,48 +126,47 @@ def sanitize_url(url: str) -> str:
 
 async def open_and_screenshot_urls():
     os.makedirs("screenshots", exist_ok=True)
+
     try:
         for chat_id in CHAT_IDS:
             await app.send_message(
                 chat_id=chat_id,
-                text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Session: 1 only"
+                text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Session: #1 only"
             )
 
         session_token = STREAMLIT_SESSIONS[1]
+        session_index = 1  # hardcoded index for message formatting
 
         for url in OPEN_URLS:
             try:
                 safe_name = sanitize_url(url)
-                filename = os.path.join("screenshots", f"open_1_{safe_name}.png")
+                filename = os.path.join("screenshots", f"open_{session_index}_{safe_name}.png")
 
                 for chat_id in CHAT_IDS:
-                    await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #1)\n📁 Filename: `{filename}`")
+                    await app.send_message(
+                        chat_id=chat_id,
+                        text=f"⏳ Trying `{url}` (session #{session_index})\n📁 Filename: `{filename}`"
+                    )
 
                 await screenshot_url_page(url, filename, session_token)
 
                 if not os.path.exists(filename):
                     raise FileNotFoundError(f"Screenshot file not found: {filename}")
-                if os.path.getsize(filename) == 0:
-                    raise ValueError(f"Screenshot file is empty: {filename}")
+                file_size = os.path.getsize(filename)
 
                 for chat_id in CHAT_IDS:
-                    try:
-                        await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #1)")
-                    except Exception as send_err:
-                        err_trace = traceback.format_exc()[-2000:]
-                        await app.send_message(
-                            chat_id=chat_id,
-                            text=f"❌ Failed to send photo for `{url}`:\n🛑 {send_err}\n```{err_trace}```"
-                        )
+                    await app.send_message(chat_id=chat_id, text=f"📦 Screenshot `{filename}` size: `{file_size}` bytes")
+                    await app.send_document(chat_id=chat_id, document=filename, caption=f"📄 Screenshot for `{url}` (session #{session_index})")
 
-                os.remove(filename)
+                # Uncomment below after debugging:
+                # os.remove(filename)
 
             except Exception as e:
                 error_text = traceback.format_exc()[-2800:]
                 for chat_id in CHAT_IDS:
                     await app.send_message(
                         chat_id=chat_id,
-                        text=f"❌ Exception while processing:\n🔗 `{url}` (session #1)\n🛑 `{str(e)}`\n```{error_text}```"
+                        text=f"❌ Exception while processing:\n🔗 `{url}` (session #{session_index})\n🛑 `{str(e)}`\n```{error_text}```"
                     )
 
     except Exception as big_e:
@@ -177,6 +176,7 @@ async def open_and_screenshot_urls():
                 chat_id=chat_id,
                 text=f"🚨 FATAL in open_and_screenshot_urls loop:\n🛑 `{str(big_e)}`\n```{error_text}```"
             )
+
 
 
 
