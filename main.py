@@ -117,19 +117,19 @@ async def restart_streamlit_apps_and_notify(session_token: str):
             await app.send_message(chat_id=chat_id, text=f"❌ Fatal error:\n`{str(e)}`\n```{error_text}```")
 
 async def open_and_screenshot_urls():
-    os.makedirs("screenshots", exist_ok=True)
-    for url in OPEN_URLS:
-        for i, session_token in enumerate(STREAMLIT_SESSIONS):
-            try:
-                filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
-                await screenshot_url_page(url, filename, session_token)
-                for chat_id in CHAT_IDS:
-                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 OPEN_URL screenshot for `{url}`")
-                os.remove(filename)
-            except Exception as e:
-                error_text = traceback.format_exc()[-2800:]
-                for chat_id in CHAT_IDS:
-                    await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
+    os.makedirs("screenshots", exist_ok=True)
+    for url in OPEN_URLS:
+        for i, session_token in enumerate(STREAMLIT_SESSIONS):
+            try:
+                filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
+                await screenshot_url_page(url, filename, session_token)
+                for chat_id in CHAT_IDS:
+                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 OPEN_URL screenshot for `{url}`")
+                os.remove(filename)
+            except Exception as e:
+                error_text = traceback.format_exc()[-2800:]
+                for chat_id in CHAT_IDS:
+                    await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
 
 
 #@app.on_message(filters.private & filters.regex(r'^https?://'))
