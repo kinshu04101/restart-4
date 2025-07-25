@@ -121,7 +121,6 @@ async def restart_streamlit_apps_and_notify(session_token: str):
 async def open_and_screenshot_urls():
     os.makedirs("screenshots", exist_ok=True)
 
-    # Notify how many URLs and sessions are being processed
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Sessions: {len(STREAMLIT_SESSIONS)}")
 
@@ -129,9 +128,16 @@ async def open_and_screenshot_urls():
         for i, session_token in enumerate(STREAMLIT_SESSIONS):
             try:
                 filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
-                await app.send_message(chat_id=CHAT_IDS[0], text=f"➡️ Capturing `{url}` (session #{i})")
-                
+
+                # 🔹 New Debug Message (before screenshot)
+                for chat_id in CHAT_IDS:
+                    await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #{i})")
+
                 await screenshot_url_page(url, filename, session_token)
+
+                # 🔹 New Debug Message (after screenshot)
+                for chat_id in CHAT_IDS:
+                    await app.send_message(chat_id=chat_id, text=f"✅ Screenshot taken for `{url}` (session #{i})")
 
                 for chat_id in CHAT_IDS:
                     await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #{i})")
@@ -142,6 +148,7 @@ async def open_and_screenshot_urls():
                 error_text = traceback.format_exc()[-2800:]
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
+
 
 
 
