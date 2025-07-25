@@ -153,14 +153,23 @@ async def handle_screenshot(client: Client, message: Message):
 async def main():
     await app.start()
     scheduler.start()
-    await open_and_screenshot_urls()
-    for sess in STREAMLIT_SESSIONS:
-        scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}",replace_existing=True)
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
-    await open_and_screenshot_urls()
+    for sess in STREAMLIT_SESSIONS:
+        scheduler.add_job(
+            restart_streamlit_apps_and_notify,
+            trigger=CronTrigger(minute=minute_str),
+            args=[sess],
+            id=f"offset_task_{offset}",
+            replace_existing=True
+        )
+    try:
+        await open_and_screenshot_urls()
+    except Exception as e:
+        error_text = traceback.format_exc()[-2800:]
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text=f"❌ Error during open_and_screenshot_urls:\n```{error_text}```")
+
+    
     await idle()
     await app.stop()
-
-if __name__ == "__main__":
-    asyncio.run(main())
