@@ -121,6 +121,7 @@ async def restart_streamlit_apps_and_notify(session_token: str):
 from hashlib import sha1
 
 def sanitize_url(url: str) -> str:
+    # Hash URL to avoid slashes, colons, etc. in filename
     return sha1(url.encode()).hexdigest()[:10]
 
 async def open_and_screenshot_urls():
@@ -132,10 +133,12 @@ async def open_and_screenshot_urls():
     for url in OPEN_URLS:
         for i, session_token in enumerate(STREAMLIT_SESSIONS):
             try:
-                filename = os.path.join("screenshots", f"open_{i}_{sanitize_url(url)}.png")
+                # Safe filename from hash
+                safe_name = sanitize_url(url)
+                filename = os.path.join("screenshots", f"open_{i}_{safe_name}.png")
 
                 for chat_id in CHAT_IDS:
-                    await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #{i})")
+                    await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #{i})\n📁 Filename: `{filename}`")
 
                 await screenshot_url_page(url, filename, session_token)
 
@@ -154,7 +157,6 @@ async def open_and_screenshot_urls():
                         chat_id=chat_id,
                         text=f"❌ Exception while processing:\n🔗 `{url}` (session #{i})\n🛑 `{str(e)}`\n```{error_text}```"
                     )
-
 
 
 
