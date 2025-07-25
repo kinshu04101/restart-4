@@ -154,39 +154,29 @@ async def open_and_screenshot_urls():
                             text=f"✅ Screenshot taken for `{url}` (session #{i})"
                         )
 
-                    # Validate screenshot file before sending
-                    if not os.path.exists(filename):
-                        raise FileNotFoundError(f"Screenshot not found: {filename}")
-                    file_size = os.path.getsize(filename)
-                    if file_size == 0:
-                        raise ValueError(f"Screenshot file is empty: {filename}")
-
+                    # Check if file exists and its size
                     for chat_id in CHAT_IDS:
                         try:
+                            if not os.path.exists(filename):
+                                raise FileNotFoundError(f"Screenshot file not found: {filename}")
+                            file_size = os.path.getsize(filename)
                             await app.send_message(
                                 chat_id=chat_id,
-                                text=f"📤 Sending screenshot to `{chat_id}` for `{url}` (session #{i})"
+                                text=f"📦 Screenshot `{filename}` size: `{file_size}` bytes"
                             )
-                            await app.send_photo(
-                                chat_id=chat_id,
-                                photo=filename,
-                                caption=f"📷 Screenshot for `{url}` (session #{i})"
-                            )
-                            await app.send_message(
-                                chat_id=chat_id,
-                                text=f"✅ Photo sent successfully for `{url}` (session #{i})"
-                            )
-                        except Exception as send_err:
+
+                            # 🧪 Optional: try sending as document instead of photo
+                            # Uncomment below if needed:
+                            # await app.send_document(chat_id=chat_id, document=filename, caption=f"📄 Screenshot for `{url}` (session #{i})")
+
+                        except Exception as file_err:
                             err_trace = traceback.format_exc()[-2000:]
                             await app.send_message(
                                 chat_id=chat_id,
-                                text=(
-                                    f"❌ Failed to send photo for `{url}` (session #{i}):\n"
-                                    f"🛑 {send_err}\n```{err_trace}```"
-                                )
+                                text=f"❌ File check/send failed for `{filename}`:\n🛑 {file_err}\n```{err_trace}```"
                             )
 
-                    # Commented out for debugging — enable after verifying
+                    # Commented out for debugging — enable after confirming
                     # os.remove(filename)
 
                 except Exception as e:
