@@ -1,0 +1,9 @@
+streamlit
+playwright==1.40.0
+requests
+bs4
+streamlit_javascript
+pyrogram
+tgcrypto
+pytest-playwright
+apscheduler==3.10.4
