@@ -120,18 +120,29 @@ async def restart_streamlit_apps_and_notify(session_token: str):
 
 async def open_and_screenshot_urls():
     os.makedirs("screenshots", exist_ok=True)
+
+    # Notify how many URLs and sessions are being processed
+    for chat_id in CHAT_IDS:
+        await app.send_message(chat_id=chat_id, text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Sessions: {len(STREAMLIT_SESSIONS)}")
+
     for url in OPEN_URLS:
         for i, session_token in enumerate(STREAMLIT_SESSIONS):
             try:
                 filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
+                await app.send_message(chat_id=CHAT_IDS[0], text=f"➡️ Capturing `{url}` (session #{i})")
+                
                 await screenshot_url_page(url, filename, session_token)
+
                 for chat_id in CHAT_IDS:
-                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 OPEN_URL screenshot for `{url}`")
+                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #{i})")
+
                 os.remove(filename)
+
             except Exception as e:
                 error_text = traceback.format_exc()[-2800:]
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
+
 
 
 #@app.on_message(filters.private & filters.regex(r'^https?://'))
@@ -153,8 +164,11 @@ async def handle_screenshot(client: Client, message: Message):
 async def main():
     await app.start()
     scheduler.start()
+
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
+
+    # Schedule all restart jobs
     for sess in STREAMLIT_SESSIONS:
         scheduler.add_job(
             restart_streamlit_apps_and_notify,
@@ -163,13 +177,21 @@ async def main():
             id=f"offset_task_{offset}",
             replace_existing=True
         )
+
+    # Run open URLs once at startup
     try:
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text="🚀 Starting open_and_screenshot_urls...")
         await open_and_screenshot_urls()
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text="✅ Completed open_and_screenshot_urls.")
     except Exception as e:
         error_text = traceback.format_exc()[-2800:]
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"❌ Error during open_and_screenshot_urls:\n```{error_text}```")
+
     await idle()
     await app.stop()
+
 if __name__ == "__main__":
     asyncio.run(main())
