@@ -12,7 +12,9 @@ BOT_TOKEN = os.environ["bot_token"]
 STREAMLIT_SESSIONS = ast.literal_eval(os.environ["st_session"])
 ALL_URLS = ast.literal_eval(os.environ["all_urls"])
 CHAT_IDS = ast.literal_eval(os.environ["chat_ids"])
-
+offset = int(os.environ["offset"])
+minute_values = list(range(offset, 60, 5))  
+minute_str = ",".join(str(m) for m in minute_values)
 app = Client("screenshot_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 scheduler = AsyncIOScheduler(timezone="Asia/Kolkata")
 
@@ -132,7 +134,7 @@ async def main():
     await app.start()
     scheduler.start()
     for sess in STREAMLIT_SESSIONS:
-        scheduler.add_job(restart_streamlit_apps_and_notify, trigger="cron", minute="*/5", args=[sess])
+        scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}")
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
     await idle()
