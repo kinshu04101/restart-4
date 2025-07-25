@@ -1,6 +1,7 @@
 import os, ast, asyncio, requests, time, traceback
 from urllib.parse import urlparse, urlsplit
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.methods.utilities.idle import idle
