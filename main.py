@@ -145,8 +145,22 @@ async def open_and_screenshot_urls():
                     for chat_id in CHAT_IDS:
                         await app.send_message(chat_id=chat_id, text=f"✅ Screenshot taken for `{url}` (session #{i})")
 
+                    # Log file size before sending
+                    if not os.path.exists(filename):
+                        raise FileNotFoundError(f"Screenshot file not found: {filename}")
+                    file_size = os.path.getsize(filename)
+                    if file_size == 0:
+                        raise ValueError(f"Screenshot file is empty: {filename}")
+
                     for chat_id in CHAT_IDS:
-                        await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #{i})")
+                        try:
+                            await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 Screenshot for `{url}` (session #{i})")
+                        except Exception as send_err:
+                            err_trace = traceback.format_exc()[-2000:]
+                            await app.send_message(
+                                chat_id=chat_id,
+                                text=f"❌ Failed to send photo for `{url}` (session #{i}):\n🛑 {send_err}\n```{err_trace}```"
+                            )
 
                     os.remove(filename)
 
@@ -159,15 +173,12 @@ async def open_and_screenshot_urls():
                         )
 
     except Exception as big_e:
-        # 🔥 Final fallback if even the outer loop breaks
         error_text = traceback.format_exc()[-2800:]
         for chat_id in CHAT_IDS:
             await app.send_message(
                 chat_id=chat_id,
                 text=f"🚨 FATAL in open_and_screenshot_urls loop:\n🛑 `{str(big_e)}`\n```{error_text}```"
             )
-
-
 
 
 #@app.on_message(filters.private & filters.regex(r'^https?://'))
