@@ -7,6 +7,8 @@ from pyrogram.types import Message
 from pyrogram.methods.utilities.idle import idle
 from playwright.async_api import async_playwright
 
+os.system("playwright install")
+
 API_ID = int(os.environ["api_id"])
 API_HASH = os.environ["api_hash"]
 BOT_TOKEN = os.environ["bot_token"]
