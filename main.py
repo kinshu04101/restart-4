@@ -140,7 +140,7 @@ async def open_and_screenshot_urls():
         for url in OPEN_URLS:
             try:
                 safe_name = sanitize_url(url)
-                filename = os.path.join("screenshots", f"open_{session_index}_{safe_name}.png")
+                filename = os.path.join("screenshots", f"open_{session_index}_{safe_name}.jpeg")
 
                 for chat_id in CHAT_IDS:
                     await app.send_message(
