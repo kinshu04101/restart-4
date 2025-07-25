@@ -128,11 +128,11 @@ async def open_and_screenshot_urls():
     os.makedirs("screenshots", exist_ok=True)
 
     try:
-        for chat_id in CHAT_IDS:
-            await app.send_message(
-                chat_id=chat_id,
-                text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Session: #1 only"
-            )
+        #for chat_id in CHAT_IDS:
+#            await app.send_message(
+#                chat_id=chat_id,
+#                text=f"📸 Starting screenshots\n🔗 URLs: {len(OPEN_URLS)}\n🧪 Session: #1 only"
+#            )
 
         session_token = STREAMLIT_SESSIONS[1]
         session_index = 1  # hardcoded index for message formatting
@@ -142,11 +142,11 @@ async def open_and_screenshot_urls():
                 safe_name = sanitize_url(url)
                 filename = os.path.join("screenshots", f"open_{session_index}_{safe_name}.jpeg")
 
-                for chat_id in CHAT_IDS:
-                    await app.send_message(
-                        chat_id=chat_id,
-                        text=f"⏳ Trying `{url}` (session #{session_index})\n📁 Filename: `{filename}`"
-                    )
+                #for chat_id in CHAT_IDS:
+#                    await app.send_message(
+#                        chat_id=chat_id,
+#                        text=f"⏳ Trying `{url}` (session #{session_index})\n📁 Filename: `{filename}`"
+#                    )
 
                 await screenshot_url_page(url, filename, session_token)
 
@@ -155,8 +155,8 @@ async def open_and_screenshot_urls():
                 file_size = os.path.getsize(filename)
                 full_path = os.path.abspath(filename)
                 for chat_id in CHAT_IDS:
-                    await app.send_message(chat_id=chat_id, text=f"📦 Screenshot `{full_path}` size: `{file_size}` bytes")
-                    await app.send_document(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
+                    await app.send_message(chat_id=chat_id, text=f"📦 Restarted sucessful `{url}` size: `{file_size}` bytes")
+                    #await app.send_document(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
 
                 # Uncomment below after debugging:
                 # os.remove(filename)
