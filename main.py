@@ -153,10 +153,10 @@ async def open_and_screenshot_urls():
                 if not os.path.exists(filename):
                     raise FileNotFoundError(f"Screenshot file not found: {filename}")
                 file_size = os.path.getsize(filename)
-
+                full_path = os.path.abspath(filename)
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"📦 Screenshot `{filename}` size: `{file_size}` bytes")
-                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📄 Screenshot for `{url}` (session #{session_index})")
+                    await app.send_photo(chat_id=chat_id, photo=full_path, caption=f"📄 Screenshot for `{url}` (session #{session_index})")
 
                 # Uncomment below after debugging:
                 # os.remove(filename)
