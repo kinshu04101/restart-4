@@ -12,6 +12,7 @@ API_HASH = os.environ["api_hash"]
 BOT_TOKEN = os.environ["bot_token"]
 STREAMLIT_SESSIONS = ast.literal_eval(os.environ["st_session"])
 ALL_URLS = ast.literal_eval(os.environ["all_urls"])
+OPEN_URLS = ast.literal_eval(os.environ["open_urls"])
 CHAT_IDS = ast.literal_eval(os.environ["chat_ids"])
 offset = int(os.environ["offset"])
 minute_values = list(range(offset, 60, 5))  
@@ -115,7 +116,23 @@ async def restart_streamlit_apps_and_notify(session_token: str):
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"❌ Fatal error:\n`{str(e)}`\n```{error_text}```")
 
-@app.on_message(filters.private & filters.regex(r'^https?://'))
+async def open_and_screenshot_urls():
+    os.makedirs("screenshots", exist_ok=True)
+    for url in OPEN_URLS:
+        for i, session_token in enumerate(STREAMLIT_SESSIONS):
+            try:
+                filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
+                await screenshot_url_page(url, filename, session_token)
+                for chat_id in CHAT_IDS:
+                    await app.send_photo(chat_id=chat_id, photo=filename, caption=f"📷 OPEN_URL screenshot for `{url}`")
+                os.remove(filename)
+            except Exception as e:
+                error_text = traceback.format_exc()[-2800:]
+                for chat_id in CHAT_IDS:
+                    await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
+
+
+#@app.on_message(filters.private & filters.regex(r'^https?://'))
 async def handle_screenshot(client: Client, message: Message):
     url = message.text.strip()
     if not is_valid_url(url):
@@ -138,6 +155,7 @@ async def main():
         scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}",replace_existing=True)
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
+    await open_and_screenshot_urls()
     await idle()
     await app.stop()
 
