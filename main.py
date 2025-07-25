@@ -156,7 +156,7 @@ async def open_and_screenshot_urls():
                 full_path = os.path.abspath(filename)
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"📦 Screenshot `{full_path}` size: `{file_size}` bytes")
-                    #await app.send_photo(chat_id=chat_id, photo=full_path, caption=f"📄 Screenshot for `{url}` (session #{session_index})")
+                    await app.send_document(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
 
                 # Uncomment below after debugging:
                 # os.remove(filename)
