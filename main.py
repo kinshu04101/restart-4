@@ -153,6 +153,7 @@ async def handle_screenshot(client: Client, message: Message):
 async def main():
     await app.start()
     scheduler.start()
+    await open_and_screenshot_urls()
     for sess in STREAMLIT_SESSIONS:
         scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}",replace_existing=True)
     for chat_id in CHAT_IDS:
