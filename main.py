@@ -135,7 +135,7 @@ async def main():
     await app.start()
     scheduler.start()
     for sess in STREAMLIT_SESSIONS:
-        scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}")
+        scheduler.add_job(restart_streamlit_apps_and_notify, trigger=CronTrigger(minute=minute_str), args=[sess], id=f"offset_task_{offset}",replace_existing=True)
     for chat_id in CHAT_IDS:
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
     await idle()
