@@ -118,6 +118,11 @@ async def restart_streamlit_apps_and_notify(session_token: str):
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"❌ Fatal error:\n`{str(e)}`\n```{error_text}```")
 
+from hashlib import sha1
+
+def sanitize_url(url: str) -> str:
+    return sha1(url.encode()).hexdigest()[:10]
+
 async def open_and_screenshot_urls():
     os.makedirs("screenshots", exist_ok=True)
 
@@ -127,15 +132,13 @@ async def open_and_screenshot_urls():
     for url in OPEN_URLS:
         for i, session_token in enumerate(STREAMLIT_SESSIONS):
             try:
-                filename = os.path.join("screenshots", f"open_{i}_{urlparse(url).netloc.replace('.', '_')}.png")
+                filename = os.path.join("screenshots", f"open_{i}_{sanitize_url(url)}.png")
 
-                # 🔹 New Debug Message (before screenshot)
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"⏳ Trying `{url}` (session #{i})")
 
                 await screenshot_url_page(url, filename, session_token)
 
-                # 🔹 New Debug Message (after screenshot)
                 for chat_id in CHAT_IDS:
                     await app.send_message(chat_id=chat_id, text=f"✅ Screenshot taken for `{url}` (session #{i})")
 
@@ -147,7 +150,11 @@ async def open_and_screenshot_urls():
             except Exception as e:
                 error_text = traceback.format_exc()[-2800:]
                 for chat_id in CHAT_IDS:
-                    await app.send_message(chat_id=chat_id, text=f"❌ Error opening `{url}`:\n`{str(e)}`\n```{error_text}```")
+                    await app.send_message(
+                        chat_id=chat_id,
+                        text=f"❌ Exception while processing:\n🔗 `{url}` (session #{i})\n🛑 `{str(e)}`\n```{error_text}```"
+                    )
+
 
 
 
