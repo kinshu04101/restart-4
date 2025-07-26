@@ -14,10 +14,10 @@ os.system("playwright install")
 
 API_ID = int(os.environ["api_id"])
 API_HASH = os.environ["api_hash"]
-BOT_TOKEN = os.environ["bot_token"]
 STREAMLIT_SESSIONS = ast.literal_eval(os.environ["st_session"])
 ALL_URLS = ast.literal_eval(os.environ["all_urls"])
 OPEN_URLS = ast.literal_eval(os.environ["open_urls"])
+BOT_TOKEN = os.environ["bot_token"]
 CHAT_IDS = ast.literal_eval(os.environ["chat_ids"])
 offset = int(os.environ["offset"])
 minute_values = list(range(offset, 60, 5))  
@@ -208,15 +208,25 @@ async def restart_my_bot():
         print("🔁 Trying to start the bot...")
         await app.start()
         print("✅ Bot started successfully!")
+
     except FloodWait as e:
         wait_sec = int(e.value) + 5
         future_time = time.localtime(time.time() + 5.5 * 3600 + wait_sec)
         human_time = time.ctime(time.time() + 5.5 * 3600 + wait_sec)
+        print_line = f"⏳ FloodWait for {e.value} sec. Waiting {wait_sec} sec until {human_time}..."
 
-        print(f"⏳ FloodWait for {e.value} sec. Waiting {wait_sec} sec until {human_time}...")
+        # ✅ Correctly indented block starts here
+        for chat_id in CHAT_IDS:
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            params = {
+                "chat_id": chat_id,
+                "text": print_line
+            }
+            requests.get(url, params=params)
 
+        print(print_line)
         await asyncio.sleep(wait_sec)
-        await restart_my_bot()  # Recursively call again
+        await restart_my_bot()
 
 async def main():
     await restart_my_bot()
