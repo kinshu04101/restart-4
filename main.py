@@ -6,6 +6,8 @@ from apscheduler.triggers.cron import CronTrigger
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.methods.utilities.idle import idle
+from pyrogram.errors import FloodWait
+
 from playwright.async_api import async_playwright
 
 os.system("playwright install")
