@@ -69,7 +69,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
 
         for chat_id in CHAT_IDS:
             await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
-        os.remove(screenshot_file)
+        #os.remove(screenshot_file)
 
     except Exception as e:
         error_text = traceback.format_exc()[-2800:]
