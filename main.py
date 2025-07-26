@@ -204,14 +204,13 @@ async def main():
         await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
 
     # Schedule all restart jobs
-    for sess in STREAMLIT_SESSIONS:
+    for i, sess in enumerate(STREAMLIT_SESSIONS):
         scheduler.add_job(
-            restart_streamlit_apps_and_notify,
-            trigger=CronTrigger(minute=minute_str),
-            args=[sess],
-            id=f"offset_task_{offset}",
-            replace_existing=True
-        )
+        restart_streamlit_apps_and_notify,
+        trigger=CronTrigger(minute=minute_str),
+        args=[sess],
+        id=f"sess_task_{offset}_{i}",
+        replace_existing=True)
 
     # Run open URLs once at startup
     try:
