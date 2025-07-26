@@ -91,6 +91,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"❌ Error in `{subdomain}`:\n`{str(e)}`\n```{error_text}```")
 
+
 async def restart_streamlit_apps_and_notify(session_token: str):
     try:
         session = requests.Session()
