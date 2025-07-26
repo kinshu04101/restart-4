@@ -68,7 +68,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
             return
 
         start_time = time.time()
-        while time.time() - start_time < 60:
+        while time.time() - start_time < 300:
             resp = session.get(status_url)
             if resp.json().get("status") == 5:
                 break
