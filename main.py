@@ -44,7 +44,20 @@ async def screenshot_url_page(url: str, output_path: str, cookie_value: str):
         await asyncio.sleep(1)
         await page.screenshot(path=output_path, full_page=True)
         await browser.close()
+async def restart_my_bot():
+    try:
+        print("🔁 Trying to start the bot...")
+        await app.start()
+        print("✅ Bot started successfully!")
+    except FloodWait as e:
+        wait_sec = int(e.value) + 5
+        future_time = time.localtime(time.time() + 5.5 * 3600 + wait_sec)
+        human_time = time.ctime(time.time() + 5.5 * 3600 + wait_sec)
 
+        print(f"⏳ FloodWait for {e.value} sec. Waiting {wait_sec} sec until {human_time}...")
+
+        await asyncio.sleep(wait_sec)
+        await restart_my_bot()  # Recursively call again
 async def restart_and_screenshot(session_token: str, app_data: dict, session: requests.Session):
     subdomain = app_data["subdomain"]
     app_id = app_data["appId"]
@@ -198,7 +211,7 @@ async def handle_screenshot(client: Client, message: Message):
         await message.reply(f"❌ Error:\n`{str(e)}`\n```{error_text}```")
 
 async def main():
-    await app.start()
+    await restart_my_bot()
     scheduler.start()
 
     for chat_id in CHAT_IDS:
