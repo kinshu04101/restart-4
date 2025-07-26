@@ -202,7 +202,7 @@ async def main():
     scheduler.start()
 
     for chat_id in CHAT_IDS:
-        await app.send_message(chat_id=chat_id, text="✅ All jobs scheduled.")
+        await app.send_message(chat_id=chat_id, text=f"✅ All jobs scheduled. bot Id is {offset}")
 
     # Schedule all restart jobs
     for i, sess in enumerate(STREAMLIT_SESSIONS):
