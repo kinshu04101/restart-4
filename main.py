@@ -70,12 +70,12 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
         start_time = time.time()
         while time.time() - start_time < 60:
             resp = session.get(status_url)
-            if resp.status_code == 200 and resp.json().get("status") == 5:
+            if resp.json().get("status") == 5:
                 break
             await asyncio.sleep(2)
         else:
             for chat_id in CHAT_IDS:
-                await app.send_message(chat_id=chat_id, text=f"❌ Timeout waiting for `{subdomain}` to restart.")
+                await app.send_message(chat_id=chat_id, text=f"❌ Timeout waiting for `{subdomain}` to restart. Status_code is "+str(resp.json().get("status") ))
             return
 
         screenshot_file = os.path.join("screenshots", f"{subdomain}.png")
