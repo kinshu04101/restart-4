@@ -1,3 +1,4 @@
+
 import os, ast, asyncio, requests, time, traceback
 from urllib.parse import urlparse, urlsplit
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -66,9 +67,10 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
         screenshot_file = os.path.join("screenshots", f"{subdomain}.png")
         os.makedirs("screenshots", exist_ok=True)
         await screenshot_url_page(url, screenshot_file, cookie_value=session_token)
-
-        #for chat_id in CHAT_IDS:
-#            await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
+#for chat_id in CHAT_IDS:
+#           await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
         #os.remove(screenshot_file)
 
     except Exception as e:
@@ -140,9 +142,9 @@ async def open_and_screenshot_urls():
                     raise FileNotFoundError(f"Screenshot file not found: {filename}")
                 file_size = os.path.getsize(filename)
                 full_path = os.path.abspath(filename)
-                #for chat_id in CHAT_IDS:
+                for chat_id in CHAT_IDS:
 #                    await app.send_message(chat_id=chat_id, text=f"📦 Restarted sucessful `{url}` size: `{file_size}` bytes")
-                    #await app.send_document(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
+                    await app.send_document(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
 
                 # Uncomment below after debugging:
                 # os.remove(filename)
@@ -176,7 +178,7 @@ async def handle_screenshot(client: Client, message: Message):
         os.makedirs("screenshots", exist_ok=True)
         output_file = os.path.join("screenshots", f"screenshot_{message.chat.id}.png")
         await screenshot_url_page(url, output_file, cookie_value=STREAMLIT_SESSIONS[0])
-        await message.reply_photo(photo=output_file, caption="✅ Screenshot complete")
+        await message.send_photo(photo=output_file, caption="✅ Screenshot complete")
         os.remove(output_file)
     except Exception as e:
         error_text = traceback.format_exc()[-2800:]
@@ -196,8 +198,8 @@ async def screenshot_url_page(url: str, output_path: str, cookie_value: str):
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
         await asyncio.sleep(1)
         await page.screenshot(path=output_path, full_page=True)
-        for chat_id in CHAT_IDS:
-        	await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
+        #for chat_id in CHAT_IDS:
+#           await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
         await browser.close()
 async def restart_my_bot():
     try:
