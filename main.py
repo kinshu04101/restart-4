@@ -67,8 +67,8 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
         os.makedirs("screenshots", exist_ok=True)
         await screenshot_url_page(url, screenshot_file, cookie_value=session_token)
 
-        for chat_id in CHAT_IDS:
-            await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
+        #for chat_id in CHAT_IDS:
+#            await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
         #os.remove(screenshot_file)
 
     except Exception as e:
@@ -196,6 +196,8 @@ async def screenshot_url_page(url: str, output_path: str, cookie_value: str):
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
         await asyncio.sleep(1)
         await page.screenshot(path=output_path, full_page=True)
+        for chat_id in CHAT_IDS:
+        	await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
         await browser.close()
 async def restart_my_bot():
     try:
