@@ -29,35 +29,7 @@ def is_valid_url(url: str) -> bool:
     except:
         return False
 
-async def screenshot_url_page(url: str, output_path: str, cookie_value: str):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context()
-        parsed = urlparse(url)
-        await context.add_cookies([{
-            "name": "streamlit_session", "value": cookie_value,
-            "domain": parsed.hostname, "path": "/", "secure": True, "httpOnly": False
-        }])
-        page = await context.new_page()
-        await page.goto(url, wait_until="networkidle", timeout=60000)
-        await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
-        await asyncio.sleep(1)
-        await page.screenshot(path=output_path, full_page=True)
-        await browser.close()
-async def restart_my_bot():
-    try:
-        print("🔁 Trying to start the bot...")
-        await app.start()
-        print("✅ Bot started successfully!")
-    except FloodWait as e:
-        wait_sec = int(e.value) + 5
-        future_time = time.localtime(time.time() + 5.5 * 3600 + wait_sec)
-        human_time = time.ctime(time.time() + 5.5 * 3600 + wait_sec)
 
-        print(f"⏳ FloodWait for {e.value} sec. Waiting {wait_sec} sec until {human_time}...")
-
-        await asyncio.sleep(wait_sec)
-        await restart_my_bot()  # Recursively call again
 async def restart_and_screenshot(session_token: str, app_data: dict, session: requests.Session):
     subdomain = app_data["subdomain"]
     app_id = app_data["appId"]
@@ -74,7 +46,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
         elif current_status == 5:
             for chat_id in CHAT_IDS:
                 await app.send_message(chat_id=chat_id, text=f"✅ Already Running `{subdomain}`")
-            return
+            #return
         else:
             for chat_id in CHAT_IDS:
                 await app.send_message(chat_id=chat_id, text=f"❌ Error in `{subdomain}`\nStatus: {current_status}")
@@ -209,6 +181,36 @@ async def handle_screenshot(client: Client, message: Message):
     except Exception as e:
         error_text = traceback.format_exc()[-2800:]
         await message.reply(f"❌ Error:\n`{str(e)}`\n```{error_text}```")
+
+async def screenshot_url_page(url: str, output_path: str, cookie_value: str):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context()
+        parsed = urlparse(url)
+        await context.add_cookies([{
+            "name": "streamlit_session", "value": cookie_value,
+            "domain": parsed.hostname, "path": "/", "secure": True, "httpOnly": False
+        }])
+        page = await context.new_page()
+        await page.goto(url, wait_until="networkidle", timeout=60000)
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
+        await asyncio.sleep(1)
+        await page.screenshot(path=output_path, full_page=True)
+        await browser.close()
+async def restart_my_bot():
+    try:
+        print("🔁 Trying to start the bot...")
+        await app.start()
+        print("✅ Bot started successfully!")
+    except FloodWait as e:
+        wait_sec = int(e.value) + 5
+        future_time = time.localtime(time.time() + 5.5 * 3600 + wait_sec)
+        human_time = time.ctime(time.time() + 5.5 * 3600 + wait_sec)
+
+        print(f"⏳ FloodWait for {e.value} sec. Waiting {wait_sec} sec until {human_time}...")
+
+        await asyncio.sleep(wait_sec)
+        await restart_my_bot()  # Recursively call again
 
 async def main():
     await restart_my_bot()
