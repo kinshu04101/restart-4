@@ -173,7 +173,7 @@ async def open_and_screenshot_urls():
 
 
 
-@app.on_message(filters.private & filters.regex(r'^https?://') )
+#@app.on_message(filters.private & filters.regex(r'^https?://') )
 async def handle_screenshot(client: Client, message: Message):
     url = message.text.strip()
     if not is_valid_url(url):
