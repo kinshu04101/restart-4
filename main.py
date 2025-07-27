@@ -35,6 +35,20 @@ def is_valid_url(url: str) -> bool:
         return False
 
 
+def send_photo_via_requests(chat_id: int, photo: str, caption: str):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+    with open(photo, 'rb') as photo_file:
+        response = requests.post(
+            url,
+            data={
+                "chat_id": chat_id,
+                "caption": caption,
+                "parse_mode": "Markdown"
+            },
+            files={"photo": photo_file}
+        )
+    return response
+
 async def restart_and_screenshot(session_token: str, app_data: dict, session: requests.Session):
     subdomain = app_data["subdomain"]
     app_id = app_data["appId"]
@@ -75,7 +89,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
 #           await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"✅ Screenshot for `{subdomain}`")
-            #await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
+            send_photo_via_requests(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
         #os.remove(screenshot_file)
 
     except Exception as e:
