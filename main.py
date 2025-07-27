@@ -260,7 +260,7 @@ async def main():
 
     scheduler.add_job(
     scheduled_open_and_screenshot,
-    trigger=CronTrigger(minute=minute_str),
+    trigger=CronTrigger(minute=hour_str),
     id=f"screenshot_job_{offset}",
     replace_existing=True,
 )
