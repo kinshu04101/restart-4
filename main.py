@@ -20,8 +20,10 @@ OPEN_URLS = ast.literal_eval(os.environ["open_urls"])
 BOT_TOKEN = os.environ["bot_token"]
 CHAT_IDS = ast.literal_eval(os.environ["chat_ids"])
 offset = int(os.environ["offset"])
-minute_values = list(range(offset, 60, 5))  
+minute_values = list(range(offset, 60, 5))
+hour_value = list(range(offset, 60, 12))
 minute_str = ",".join(str(m) for m in minute_values)
+hour_str = ",".join(str(m) for m in hour_value)
 app = Client("screenshot_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 scheduler = AsyncIOScheduler(timezone="Asia/Kolkata")
 
@@ -228,6 +230,17 @@ async def restart_my_bot():
         print(print_line)
         await asyncio.sleep(wait_sec)
         await restart_my_bot()
+async def scheduled_open_and_screenshot():
+    try:
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text="🚀 Starting open_and_screenshot_urls...")
+        await open_and_screenshot_urls()
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text="✅ Completed open_and_screenshot_urls.")
+    except Exception as e:
+        error_text = traceback.format_exc()[-2800:]
+        for chat_id in CHAT_IDS:
+            await app.send_message(chat_id=chat_id, text=f"❌ Error during open_and_screenshot_urls:\n```{error_text}```")
 
 async def main():
     await restart_my_bot()
@@ -245,7 +258,12 @@ async def main():
         id=f"sess_task_{offset}_{i}",
         replace_existing=True)
 
-    # Run open URLs once at startup
+    scheduler.add_job(
+    scheduled_open_and_screenshot,
+    trigger=CronTrigger(minute=minute_str),
+    id=f"screenshot_job_{offset}",
+    replace_existing=True,
+)
     try:
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text="🚀 Starting open_and_screenshot_urls...")
