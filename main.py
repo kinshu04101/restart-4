@@ -75,7 +75,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
 #           await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"✅ Screenshot for `{subdomain}`")
-            await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
+            #await app.send_photo(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
         #os.remove(screenshot_file)
 
     except Exception as e:
@@ -173,7 +173,7 @@ async def open_and_screenshot_urls():
 
 
 
-#@app.on_message(filters.private & filters.regex(r'^https?://'))
+@app.on_message(filters.private & filters.regex(r'^https?://') )
 async def handle_screenshot(client: Client, message: Message):
     url = message.text.strip()
     if not is_valid_url(url):
