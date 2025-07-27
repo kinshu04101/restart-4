@@ -21,7 +21,7 @@ BOT_TOKEN = os.environ["bot_token"]
 CHAT_IDS = ast.literal_eval(os.environ["chat_ids"])
 offset = int(os.environ["offset"])
 minute_values = list(range(offset, 60, 5))
-hour_value = list(range(offset, 60, 12))
+hour_value = [offset*12]
 minute_str = ",".join(str(m) for m in minute_values)
 hour_str = ",".join(str(m) for m in hour_value)
 app = Client("screenshot_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
