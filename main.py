@@ -89,7 +89,7 @@ async def restart_and_screenshot(session_token: str, app_data: dict, session: re
 #           await app.send_photo(chat_id=chat_id, photo=output_path, caption=f"✅ Screenshot for `{url}`")
         for chat_id in CHAT_IDS:
             await app.send_message(chat_id=chat_id, text=f"✅ Screenshot for `{subdomain}`")
-            send_photo_via_requests(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`")
+            send_photo_via_requests(chat_id=chat_id, photo=screenshot_file, caption=f"✅ Screenshot for `{subdomain}`\nID = {offset}")
         #os.remove(screenshot_file)
 
     except Exception as e:
@@ -162,7 +162,7 @@ async def open_and_screenshot_urls():
                 file_size = os.path.getsize(filename)
                 full_path = os.path.abspath(filename)
                 for chat_id in CHAT_IDS:
-                	send_photo_via_requests(chat_id=chat_id, document=full_path, caption=f"📄 Screenshot for `{url}`")
+                	send_photo_via_requests(chat_id=chat_id, photo=full_path, caption=f"📄 Screenshot for `{url}`\nID = {offset}")
                 os.remove(filename)
 #                    await app.send_message(chat_id=chat_id, text=f"📦 Restarted sucessful `{url}` size: `{file_size}` bytes")
                    
